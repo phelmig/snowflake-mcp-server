@@ -1,6 +1,6 @@
 # MCP Server for Snowflake
 
-A Model Context Protocol (MCP) server for performing read-only operations against Snowflake databases. This tool enables Claude to securely query Snowflake data without modifying any information.
+A Model Context Protocol (MCP) server for performing read-only operations against Snowflake databases. This tool enables AI assistants to securely query Snowflake data without modifying any information.
 
 ## Features
 
@@ -13,7 +13,7 @@ A Model Context Protocol (MCP) server for performing read-only operations agains
 - MCP-compatible handlers for querying Snowflake data
 - Read-only operations with security checks to prevent data modification
 - Support for Python 3.12+
-- Stdio-based MCP server for easy integration with Claude Desktop
+- Streamable HTTP service for easy integration with any MCP client
 
 ## Available Tools
 
@@ -66,56 +66,31 @@ The server provides the following tools for querying Snowflake:
 
 ## Usage
 
-### Running with uv
+### Running the Server
 
 After installing the package, you can run the server directly with:
 
 ```
 uv run snowflake-mcp
-
-# Or you can be explicit about using stdio transport
-uv run snowflake-mcp-stdio
 ```
 
-This will start the stdio-based MCP server, which can be connected to Claude Desktop or any MCP client that supports stdio communication.
+This will start the MCP server as a streamable HTTP service on `http://127.0.0.1:8000/snowflake`. The server can be connected to any MCP client that supports HTTP communication.
 
 When using external browser authentication, a browser window will automatically open prompting you to log in to your Snowflake account.
 
-### Claude Desktop Integration
+### MCP Client Integration
 
-1. In Claude Desktop, go to Settings → MCP Servers
-2. Add a new server with the full path to your uv executable:
-   ```yaml
-   "snowflake-mcp-server": {
-      "command": "uv",
-      "args": [
-         "--directory",
-         "/<path-to-code>/snowflake-mcp-server",
-         "run",
-         "snowflake-mcp"
-      ]
-   }
-   ```
-   
-   Or explicitly specify the stdio transport:
-   
-   ```yaml
-   "snowflake-mcp-server": {
-      "command": "uv",
-      "args": [
-         "--directory",
-         "/<path-to-code>/snowflake-mcp-server",
-         "run",
-         "snowflake-mcp-stdio"
-      ]
-   }
-   ```
-3. You can find your uv path by running `which uv` in your terminal
-4. Save the server configuration
+To connect to the server from an MCP client, use the following configuration:
+
+```yaml
+"snowflake-mcp-server": {
+   "url": "http://127.0.0.1:8000/snowflake"
+}
+```
 
 ### Example Queries
 
-When using with Claude, you can ask questions like:
+When using with an AI assistant, you can ask questions like:
 
 - "Can you list all the databases in my Snowflake account?"
 - "List all views in the MARKETING database"
@@ -127,13 +102,58 @@ When using with Claude, you can ask questions like:
 
 ### Configuration
 
-Connection pooling behavior can be configured through environment variables:
+The server can be configured through environment variables:
+
+### Snowflake Connection Settings
+
+- `SNOWFLAKE_AUTH_TYPE`: Authentication type (`private_key` or `external_browser`)
+- `SNOWFLAKE_ACCOUNT`: Your Snowflake account identifier
+- `SNOWFLAKE_USER`: Your Snowflake username
+- `SNOWFLAKE_WAREHOUSE`: (Optional) Default warehouse to use
+- `SNOWFLAKE_DATABASE`: (Optional) Default database to use
+- `SNOWFLAKE_SCHEMA`: (Optional) Default schema to use
+- `SNOWFLAKE_ROLE`: (Optional) Default role to use
+
+### Private Key Authentication Settings
+
+For private key authentication, you can provide the private key in two ways:
+
+1. Using a private key file:
+   ```
+   SNOWFLAKE_PRIVATE_KEY_PATH=/path/to/your/private_key.p8
+   ```
+
+2. Embedding the private key directly (useful for cloud environments):
+   ```
+   SNOWFLAKE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF...\n-----END PRIVATE KEY-----
+   ```
+
+   Note: If both `SNOWFLAKE_PRIVATE_KEY` and `SNOWFLAKE_PRIVATE_KEY_PATH` are set, the embedded key takes precedence.
+
+### Server Configuration
+
+- `MCP_SERVER_PORT`: Port to run the HTTP server on (default: 8000)
+- `MCP_SERVER_PATH`: URL path for the MCP server (default: /snowflake)
+
+### Connection Pooling Settings
 
 - `SNOWFLAKE_CONN_REFRESH_HOURS`: Time interval in hours between connection refreshes (default: 8)
 
 Example `.env` configuration:
 ```
-# Set connection to refresh every 4 hours
+# Authentication
+SNOWFLAKE_AUTH_TYPE=private_key
+SNOWFLAKE_ACCOUNT=your_account_id.your_region
+SNOWFLAKE_USER=your_username
+
+# Private key (embedded)
+SNOWFLAKE_PRIVATE_KEY=-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEF...\n-----END PRIVATE KEY-----
+
+# Server settings
+MCP_SERVER_PORT=8080
+MCP_SERVER_PATH=/api/snowflake
+
+# Connection pooling
 SNOWFLAKE_CONN_REFRESH_HOURS=4
 ```
 
@@ -199,6 +219,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project uses:
 - [Snowflake Connector Python](https://docs.snowflake.com/en/developer-guide/python-connector/python-connector) for connecting to Snowflake
-- [MCP (Model Context Protocol)](https://github.com/anthropics/anthropic-cookbook/tree/main/mcp) for interacting with Claude
+- [FastMCP](https://github.com/jlowin/fastmcp) for the MCP server implementation
 - [Pydantic](https://docs.pydantic.dev/) for data validation
 - [python-dotenv](https://github.com/theskumar/python-dotenv) for environment variable management

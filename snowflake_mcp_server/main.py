@@ -1,13 +1,13 @@
 """MCP server implementation for Snowflake.
 
-This module provides a Model Context Protocol (MCP) server that allows Claude
+This module provides a Model Context Protocol (MCP) server that allows AI assistants
 to perform read-only operations against Snowflake databases. It connects to
 Snowflake using either service account authentication with a private key or
 external browser authentication. It exposes various tools for querying database
 metadata and data, including support for multi-view and multi-database queries.
 
-The server is designed to be used with Claude Desktop as an MCP server, providing
-Claude with secure, controlled access to Snowflake data for analysis and reporting.
+The server is designed to be used with any MCP client, providing secure, controlled
+access to Snowflake data for analysis and reporting through a streamable HTTP service.
 """
 
 import os
@@ -40,6 +40,10 @@ def get_snowflake_config() -> SnowflakeConfig:
         else AuthType.EXTERNAL_BROWSER
     )
 
+    # Get private key parameters if using private key authentication
+    private_key = os.getenv("SNOWFLAKE_PRIVATE_KEY")
+    private_key_path = os.getenv("SNOWFLAKE_PRIVATE_KEY_PATH")
+
     config = SnowflakeConfig(
         account=os.getenv("SNOWFLAKE_ACCOUNT", ""),
         user=os.getenv("SNOWFLAKE_USER", ""),
@@ -48,11 +52,9 @@ def get_snowflake_config() -> SnowflakeConfig:
         database=os.getenv("SNOWFLAKE_DATABASE"),
         schema_name=os.getenv("SNOWFLAKE_SCHEMA"),
         role=os.getenv("SNOWFLAKE_ROLE"),
+        private_key=private_key,
+        private_key_path=private_key_path,
     )
-
-    # Only set private_key_path if using private key authentication
-    if auth_type == AuthType.PRIVATE_KEY:
-        config.private_key_path = os.getenv("SNOWFLAKE_PRIVATE_KEY_PATH", "")
 
     return config
 
@@ -457,4 +459,8 @@ def run_stdio_server() -> None:
     # Initialize the connection manager before running the server
     init_connection_manager()
 
-    mcp.run(transport="streamable-http", host="127.0.0.1", port=8000, path="/snoflake")
+    # Get server configuration from environment variables
+    port = int(os.getenv("MCP_SERVER_PORT", "8000"))
+    path = os.getenv("MCP_SERVER_PATH", "/snowflake")
+
+    mcp.run(transport="streamable-http", host="127.0.0.1", port=port, path=path)

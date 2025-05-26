@@ -25,7 +25,7 @@ import snowflake.connector
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives.serialization import load_pem_private_key
-from pydantic import BaseModel, ValidationInfo, field_validator
+from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
 from snowflake.connector import SnowflakeConnection
 from snowflake.connector.errors import DatabaseError, OperationalError
 
@@ -38,31 +38,41 @@ class AuthType(str, Enum):
 
 
 class SnowflakeConfig(BaseModel):
-    """Snowflake connection configuration."""
+    """Configuration for Snowflake connection."""
 
     account: str
     user: str
     auth_type: AuthType
-    private_key_path: Optional[str] = None
     warehouse: Optional[str] = None
     database: Optional[str] = None
-    schema_name: Optional[str] = (
-        None  # Renamed from schema to avoid conflict with BaseModel
-    )
+    schema_name: Optional[str] = None
     role: Optional[str] = None
+    private_key_path: Optional[str] = None
+    private_key: Optional[str] = None
 
-    @field_validator("private_key_path")
-    @classmethod
-    def validate_private_key_path(
-        cls, v: Optional[str], info: ValidationInfo
-    ) -> Optional[str]:
-        """Validate that private_key_path is provided when auth_type is PRIVATE_KEY."""
-        values = info.data
-        if values.get("auth_type") == AuthType.PRIVATE_KEY and not v:
-            raise ValueError(
-                "private_key_path is required when auth_type is PRIVATE_KEY"
-            )
+    @field_validator("account")
+    def validate_account(cls, v: str) -> str:
+        """Validate Snowflake account format."""
+        if not v:
+            raise ValueError("Snowflake account is required")
         return v
+
+    @field_validator("user")
+    def validate_user(cls, v: str) -> str:
+        """Validate Snowflake user."""
+        if not v:
+            raise ValueError("Snowflake user is required")
+        return v
+
+    @model_validator(mode='after')
+    def validate_auth_type(self) -> 'SnowflakeConfig':
+        """Validate authentication type and required fields."""
+        if self.auth_type == AuthType.PRIVATE_KEY:
+            if not self.private_key and not self.private_key_path:
+                raise ValueError(
+                    "For private key authentication, either private_key or private_key_path must be set"
+                )
+        return self
 
 
 def load_private_key(private_key_path: str) -> rsa.RSAPrivateKey:
@@ -283,12 +293,27 @@ def get_snowflake_connection(config: SnowflakeConfig) -> SnowflakeConnection:
 
     # Set authentication parameters based on auth_type
     if config.auth_type == AuthType.PRIVATE_KEY:
-        if not config.private_key_path:
+        if config.private_key:
+            # Load the embedded private key
+            try:
+                private_key = load_pem_private_key(
+                    config.private_key.encode(),
+                    password=None,
+                    backend=default_backend(),
+                )
+                if not isinstance(private_key, rsa.RSAPrivateKey):
+                    raise TypeError("Private key is not an RSA private key")
+                conn_params["private_key"] = private_key
+            except Exception as e:
+                raise ValueError(f"Failed to load embedded private key: {str(e)}")
+        elif config.private_key_path:
+            # Load from file if no embedded key
+            private_key = load_private_key(config.private_key_path)
+            conn_params["private_key"] = private_key
+        else:
             raise ValueError(
-                "Private key path is required for private key authentication"
+                "For private key authentication, either private_key or private_key_path must be set"
             )
-        private_key = load_private_key(config.private_key_path)
-        conn_params["private_key"] = private_key
     elif config.auth_type == AuthType.EXTERNAL_BROWSER:
         conn_params["authenticator"] = "externalbrowser"
 

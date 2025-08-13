@@ -463,4 +463,4 @@ def run_stdio_server() -> None:
     port = int(os.getenv("MCP_SERVER_PORT", "8000"))
     path = os.getenv("MCP_SERVER_PATH", "/snowflake")
 
-    mcp.run(transport="streamable-http", host="127.0.0.1", port=port, path=path)
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=port, path="/a")

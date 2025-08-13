@@ -30,6 +30,7 @@ click==8.1.8
     # via
     #   typer
     #   uvicorn
+
 colorama==0.4.6 ; sys_platform == 'win32'
     # via click
 cryptography==44.0.2
@@ -143,3 +144,4 @@ uvicorn==0.34.0 ; sys_platform != 'emscripten'
     # via mcp
 websockets==15.0.1
     # via fastmcp
+uv

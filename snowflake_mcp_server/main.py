@@ -176,6 +176,73 @@ async def list_views(database: str, schema_name: Optional[str] = None) -> Sequen
             mcp_types.TextContent(type="text", text=f"Error listing views: {str(e)}")
         ]
 
+
+@mcp.tool()
+async def list_semantic_views(database: str, schema_name: Optional[str] = None) -> Sequence[Union[mcp_types.TextContent, mcp_types.ImageContent, mcp_types.EmbeddedResource]]:
+    """List all semantic views in a specified database and schema."""
+    try:
+        # Get Snowflake connection from connection manager
+        conn = connection_manager.get_connection()
+
+        if not database:
+            return [
+                mcp_types.TextContent(
+                    type="text", text="Error: database parameter is required"
+                )
+            ]
+
+        # Use the provided database and schema, or use default schema
+        if database:
+            conn.cursor().execute(f"USE DATABASE {database}")
+        if schema_name:
+            conn.cursor().execute(f"USE SCHEMA {schema_name}")
+        else:
+            # Get the current schema
+            cursor = conn.cursor()
+            cursor.execute("SELECT CURRENT_SCHEMA()")
+            schema_result = cursor.fetchone()
+            if schema_result:
+                schema_name = schema_result[0]
+            else:
+                return [
+                    mcp_types.TextContent(
+                        type="text", text="Error: Could not determine current schema"
+                    )
+                ]
+
+        # Execute query to list semantic views
+        cursor = conn.cursor()
+        cursor.execute(f"SHOW SEMANTIC VIEWS IN {database}.{schema_name}")
+
+        # Process results
+        semantic_views = []
+        for row in cursor:
+            view_name = row[1]  # View name is in the second column
+            created_on = row[0]  # Creation date is in the first column for semantic views
+            semantic_views.append(f"{view_name} (created: {created_on})")
+
+        cursor.close()
+        # Don't close the connection, just the cursor
+
+        if semantic_views:
+            return [
+                mcp_types.TextContent(
+                    type="text",
+                    text=f"Semantic views in {database}.{schema_name}:\n" + "\n".join(semantic_views),
+                )
+            ]
+        else:
+            return [
+                mcp_types.TextContent(
+                    type="text", text=f"No semantic views found in {database}.{schema_name}"
+                )
+            ]
+
+    except Exception as e:
+        return [
+            mcp_types.TextContent(type="text", text=f"Error listing semantic views: {str(e)}")
+        ]
+
 @mcp.tool()
 async def describe_view(database: str, view_name: str, schema_name: Optional[str] = None) -> Sequence[Union[mcp_types.TextContent, mcp_types.ImageContent, mcp_types.EmbeddedResource]]:
     """Get detailed information about a specific view including columns and SQL definition."""

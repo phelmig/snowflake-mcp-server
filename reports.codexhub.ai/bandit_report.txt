@@ -1,0 +1,74 @@
+Run started:2025-08-22 12:46:04.506353
+
+Test results:
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b608_hardcoded_sql_expressions.html
+   Location: snowflake_mcp_server/main.py:358:25
+357	        cursor = conn.cursor()
+358	        cursor.execute(f"SELECT * FROM {full_view_name} LIMIT {limit}")
+359	
+
+--------------------------------------------------
+>> Issue: [B104:hardcoded_bind_all_interfaces] Possible binding to all interfaces.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-605 (https://cwe.mitre.org/data/definitions/605.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b104_hardcoded_bind_all_interfaces.html
+   Location: snowflake_mcp_server/main.py:533:46
+532	
+533	    mcp.run(transport="streamable-http", host="0.0.0.0", port=port, path="/snowflake")
+
+--------------------------------------------------
+>> Issue: [B101:assert_used] Use of assert detected. The enclosed code will be removed when compiling to optimised byte code.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b101_assert_used.html
+   Location: snowflake_mcp_server/utils/snowflake_conn.py:173:12
+172	            # _connect() would have either set it or raised an exception
+173	            assert (
+174	                self._connection is not None
+175	            ), "Connection is None after connect attempt"
+176	            return self._connection
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html
+   Location: snowflake_mcp_server/utils/snowflake_conn.py:202:16
+201	                    self._connection.close()
+202	                except Exception:
+203	                    pass  # Ignore errors during close
+204	                self._connection = None
+
+--------------------------------------------------
+>> Issue: [B110:try_except_pass] Try, Except, Pass detected.
+   Severity: Low   Confidence: High
+   CWE: CWE-703 (https://cwe.mitre.org/data/definitions/703.html)
+   More Info: https://bandit.readthedocs.io/en/1.8.6/plugins/b110_try_except_pass.html
+   Location: snowflake_mcp_server/utils/snowflake_conn.py:212:12
+211	                self._connection.close()
+212	            except Exception:
+213	                pass  # Ignore errors during close
+214	
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 781
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 3
+		Medium: 2
+		High: 0
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 0
+		Medium: 2
+		High: 3
+Files skipped (0):

@@ -1,0 +1,165 @@
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
++==============================================================================+
+
+                                   /$$$$$$            /$$
+                                  /$$__  $$          | $$
+               /$$$$$$$  /$$$$$$ | $$  \__//$$$$$$  /$$$$$$   /$$   /$$
+              /$$_____/ |____  $$| $$$$   /$$__  $$|_  $$_/  | $$  | $$
+             |  $$$$$$   /$$$$$$$| $$_/  | $$$$$$$$  | $$    | $$  | $$
+              \____  $$ /$$__  $$| $$    | $$_____/  | $$ /$$| $$  | $$
+              /$$$$$$$/|  $$$$$$$| $$    |  $$$$$$$  |  $$$$/|  $$$$$$$
+             |_______/  \_______/|__/     \_______/   \___/   \____  $$
+                                                              /$$  | $$
+                                                             |  $$$$$$/
+      by safetycli.com                                        \______/
+
++==============================================================================+
+
+ ANNOUNCEMENTS
+
+  * Warning: uv is unpinned. Safety by default does not report on potential 
+    vulnerabilities in unpinned packages. It is recommended to pin your 
+    dependencies unless this is a library meant for distribution. To learn more 
+    about reporting these, specifier range handling, and options for scanning 
+    unpinned packages visit https://docs.pyup.io/docs/safety-range-specs 
+
++==============================================================================+
+
+ REPORT 
+
+  Safety v3.6.0 is scanning for Vulnerabilities...
+  Scanning dependencies in your files:
+
+  -> requirements.txt
+
+  Using open-source vulnerability database
+  Found and scanned 49 packages
+  Timestamp 2025-08-22 12:46:53
+  6 vulnerabilities reported
+  1 vulnerability ignored
+
++==============================================================================+
+ VULNERABILITIES FOUND
++==============================================================================+
+
+-> Warning: 1 known vulnerability matches the uv versions that could be 
+   installed from your specifier: uv>=0 (unpinned). These vulnerabilities are 
+   not reported by default. To report these vulnerabilities set 'ignore- 
+   unpinned-requirements' to False under 'security' in your policy file. See 
+   https://docs.pyup.io/docs/safety-20-policy-file for more information. 
+   It is recommended to pin your dependencies unless this is a library meant 
+   for distribution. To learn more about reporting these, specifier range 
+   handling, and options for scanning unpinned packages visit 
+   https://docs.pyup.io/docs/safety-range-specs 
+
+-> Vulnerability found in urllib3 version 2.3.0
+   Vulnerability ID: 77744
+   Affected spec: <2.5.0
+   ADVISORY: urllib3 is a user-friendly HTTP client library for
+   Python. Prior to 2.5.0, it is possible to disable redirects for all...
+   CVE-2025-50181
+   For more information about this vulnerability, visit
+   https://data.safetycli.com/v/77744/97c
+   To ignore this vulnerability, use PyUp vulnerability id 77744 in safety’s
+   ignore command-line argument or add the ignore to your safety policy file.
+
+
+-> Vulnerability found in urllib3 version 2.3.0
+   Vulnerability ID: 77745
+   Affected spec: <2.5.0
+   ADVISORY: Urllib3 is a user-friendly HTTP client library for
+   Python. Starting in version 2.2.0 and before 2.5.0, urllib3 does not...
+   CVE-2025-50182
+   For more information about this vulnerability, visit
+   https://data.safetycli.com/v/77745/97c
+   To ignore this vulnerability, use PyUp vulnerability id 77745 in safety’s
+   ignore command-line argument or add the ignore to your safety policy file.
+
+
+-> Vulnerability found in requests version 2.32.3
+   Vulnerability ID: 77680
+   Affected spec: <2.32.4
+   ADVISORY: Requests is an HTTP library. Due to a URL parsing issue,
+   Requests releases prior to 2.32.4 may leak .netrc credentials to third...
+   CVE-2024-47081
+   For more information about this vulnerability, visit
+   https://data.safetycli.com/v/77680/97c
+   To ignore this vulnerability, use PyUp vulnerability id 77680 in safety’s
+   ignore command-line argument or add the ignore to your safety policy file.
+
+
+-> Vulnerability found in mcp version 1.9.1
+   Vulnerability ID: 77976
+   Affected spec: <1.9.4
+   ADVISORY: The MCP Python SDK, called `mcp` on PyPI, is a Python
+   implementation of the Model Context Protocol (MCP). Prior to version...
+   CVE-2025-53366
+   For more information about this vulnerability, visit
+   https://data.safetycli.com/v/77976/97c
+   To ignore this vulnerability, use PyUp vulnerability id 77976 in safety’s
+   ignore command-line argument or add the ignore to your safety policy file.
+
+
+-> Vulnerability found in mcp version 1.9.1
+   Vulnerability ID: 77975
+   Affected spec: <1.10.0
+   ADVISORY: The MCP Python SDK, called `mcp` on PyPI, is a Python
+   implementation of the Model Context Protocol (MCP). Prior to version...
+   CVE-2025-53365
+   For more information about this vulnerability, visit
+   https://data.safetycli.com/v/77975/97c
+   To ignore this vulnerability, use PyUp vulnerability id 77975 in safety’s
+   ignore command-line argument or add the ignore to your safety policy file.
+
+
+-> Vulnerability found in h11 version 0.14.0
+   Vulnerability ID: 76903
+   Affected spec: <0.16.0
+   ADVISORY: A leniency in h11's parsing of line terminators in
+   chunked-coding message bodies can lead to request smuggling...
+   CVE-2025-43859
+   For more information about this vulnerability, visit
+   https://data.safetycli.com/v/76903/97c
+   To ignore this vulnerability, use PyUp vulnerability id 76903 in safety’s
+   ignore command-line argument or add the ignore to your safety policy file.
+
+
++==============================================================================+
+   REMEDIATIONS
+
+  6 vulnerabilities were reported in 4 packages. For detailed remediation & 
+  fix recommendations, upgrade to a commercial license. 
+
++==============================================================================+
+
+ Scan was completed. 6 vulnerabilities were reported. 1 vulnerability from 1 
+ package was ignored. 
+
++==============================================================================+
+
+
++===========================================================================================================================================================================================+
+
+
+DEPRECATED: this command (`check`) has been DEPRECATED, and will be unsupported beyond 01 June 2024.
+
+
+We highly encourage switching to the new `scan` command which is easier to use, more powerful, and can be set up to mimic the deprecated command if required.
+
+
++===========================================================================================================================================================================================+
+
+
